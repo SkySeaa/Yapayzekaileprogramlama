@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giriş Yap | Neon Üyelik Sistemi</title>
+  <style>
+    :root {
+      --bg-dark: #070812;
+      --card-bg: rgba(16, 19, 38, 0.88);
+      --border-color: rgba(139, 92, 246, 0.35);
+      --text-main: #f4f6ff;
+      --text-muted: #9aa3c7;
+      --neon-purple: #a855f7;
+      --neon-blue: #38bdf8;
+      --error-color: #fb7185;
+      --success-color: #34d399;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 18% 22%, rgba(168, 85, 247, 0.24), transparent 42%),
+        radial-gradient(circle at 82% 78%, rgba(56, 189, 248, 0.22), transparent 45%),
+        var(--bg-dark);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 36px 30px;
+      box-shadow:
+        0 0 28px rgba(168, 85, 247, 0.16),
+        0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 26px;
+    }
+
+    .auth-header h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .auth-header p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(9, 11, 24, 0.85);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    input.has-toggle {
+      padding-right: 46px;
+    }
+
+    input:focus {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+
+    .toggle-btn {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: color 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      color: var(--neon-blue);
+    }
+
+    .error-msg {
+      display: block;
+      min-height: 18px;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: var(--error-color);
+    }
+
+    .form-links-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+
+    a {
+      color: var(--neon-blue);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s ease, text-shadow 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--neon-purple);
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.65);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 11px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffff;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.35), 0 0 24px rgba(56, 189, 248, 0.2);
+      transition: transform 0.22s ease, box-shadow 0.25s ease, filter 0.25s ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+      box-shadow:
+        0 0 22px rgba(168, 85, 247, 0.75),
+        0 0 36px rgba(56, 189, 248, 0.6);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .status-banner {
+      margin-top: 16px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      display: none;
+    }
+
+    .status-banner.success {
+      display: block;
+      background: rgba(52, 211, 153, 0.14);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: var(--success-color);
+    }
+
+    .auth-footer {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="auth-card">
+    <div class="auth-header">
+      <h1>Giriş Yap</h1>
+      <p>Hesabınıza erişmek için bilgilerinizi girin</p>
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="email">E-posta</label>
+        <input type="email" id="email" name="email" placeholder="ornek@alanadi.com" />
+        <small class="error-msg" id="emailError"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Şifre</label>
+        <div class="input-wrapper">
+          <input type="password" id="password" name="password" class="has-toggle" placeholder="Şifrenizi girin" />
+          <button type="button" class="toggle-btn" id="togglePassword" aria-label="Şifreyi göster veya gizle">
+            Göster
+          </button>
+        </div>
+        <small class="error-msg" id="passwordError"></small>
+      </div>
+
+      <div class="form-links-row">
+        <a href="forgot_password.html">Şifremi Unuttum</a>
+      </div>
+
+      <button type="submit" class="submit-btn">Giriş Yap</button>
+      <div class="status-banner" id="loginStatus"></div>
+    </form>
+
+    <div class="auth-footer">
+      Hesabınız yok mu? <a href="signup.html">Üye Ol</a>
+    </div>
+  </main>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const toggleBtn = document.getElementById("togglePassword");
+    const emailError = document.getElementById("emailError");
+    const passwordError = document.getElementById("passwordError");
+    const loginStatus = document.getElementById("loginStatus");
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    toggleBtn.addEventListener("click", () => {
+      const gizliMi = passwordInput.type === "password";
+      passwordInput.type = gizliMi ? "text" : "password";
+      toggleBtn.textContent = gizliMi ? "Gizle" : "Göster";
+    });
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      emailError.textContent = "";
+      passwordError.textContent = "";
+      loginStatus.className = "status-banner";
+      loginStatus.textContent = "";
+
+      let gecerli = true;
+      const emailDegeri = emailInput.value.trim();
+      const sifreDegeri = passwordInput.value;
+
+      if (!emailDegeri) {
+        emailError.textContent = "E-posta alanı boş bırakılamaz.";
+        gecerli = false;
+      } else if (!emailRegex.test(emailDegeri)) {
+        emailError.textContent = "Lütfen geçerli bir e-posta adresi girin.";
+        gecerli = false;
+      }
+
+      if (!sifreDegeri) {
+        passwordError.textContent = "Şifre alanı boş bırakılamaz.";
+        gecerli = false;
+      }
+
+      if (gecerli) {
+        loginStatus.classList.add("success");
+        loginStatus.textContent = `${emailDegeri} adresi için giriş bilgileri doğrulandı.`;
+      }
+    });
+  </script>
+</body>
+</html>

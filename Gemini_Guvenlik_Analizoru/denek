@@ -1,0 +1,105 @@
+import os
+import google.generativeai as genai
+
+# 1. Gemini API Bağlantısı
+API_KEY = os.getenv("GEMINI_API_KEY", "GEMINI_API_ANAHTARINIZI_BURAYA_YAZIN")
+genai.configure(api_key="AQ.Ab8RN6IlnB_hhl_kAiAQVhyvr4USU014nYk_yO61h4YJuY8NdQ" )
+
+model = genai.GenerativeModel(model_name="gemini-3.8-flash")
+
+sistem_mesaji = """
+Sen kıdemli bir Frontend ve UI/UX geliştiricisisin.
+Kullanıcının tasarım talebine göre birbirine bağlı çalışan üç adet eksiksiz HTML5 dosyası üreteceksin:
+1. index.html (Login / Giriş Yap sayfası)
+2. forgot_password.html (Şifremi Unuttum / Şifre Sıfırlama sayfası)
+3. signup.html (Sign Up / Üye Ol sayfası)
+
+Kurallar:
+- Yanıtını YALNIZCA aşağıdaki ayıraç etiketlerini kullanarak ver; etiketlerin dışında hiçbir açıklama veya metin yazma:
+===INDEX.HTML===
+(buraya index.html içeriği)
+===FORGOT_PASSWORD.HTML===
+(buraya forgot_password.html içeriği)
+===SIGNUP.HTML===
+(buraya signup.html içeriği)
+
+- Her dosyada CSS ve JavaScript kodlarını harici dosya yerine doğrudan HTML içine (<style> ve <script>) göm.
+- Modern, profesyonel, mobil uyumlu (responsive) ve karanlık mod (Dark Mode) tasarım uygula; butonlarda hover ve neon parlama efektleri kullan.
+- Sayfalar arası geçiş bağlantıları (href):
+  * index.html -> forgot_password.html ve signup.html
+  * forgot_password.html -> index.html
+  * signup.html -> index.html
+- JavaScript ile form doğrulama (boş alan kontrolü, e-posta formatı kontrolü, signup sayfasında şifre tekrar eşleşme kontrolü) ve şifre göster/gizle butonu ekle.
+"""
+
+varsayilan_talep = (
+    "Modern, profesyonel, karanlık temalı bir üyelik sistemi oluştur. "
+    "Mor ve mavi neon renkler kullan. Login, Forgot Password ve Signup sayfaları "
+    "aynı tasarım dilini kullansın. Sayfalar arasında geçişler çalışsın. "
+    "Butonların üzerine gelindiğinde parlama efekti oluşsun."
+)
+
+dosyalar = {
+    "index.html": "===INDEX.HTML===",
+    "forgot_password.html": "===FORGOT_PASSWORD.HTML===",
+    "signup.html": "===SIGNUP.HTML===",
+}
+
+
+def markdown_temizle(kod: str) -> str:
+    temiz = kod.strip()
+    for satir_baslangici in ("```html", "```HTML", "```"):
+        if temiz.startswith(satir_baslangici):
+            temiz = temiz[len(satir_baslangici) :].lstrip()
+    if temiz.endswith("```"):
+        temiz = temiz[:-3].rstrip()
+    return temiz.strip()
+
+
+def bolum_ayikla(metin: str, etiket: str, sonraki_etiketler: list[str]) -> str:
+    baslangic_idx = metin.find(etiket)
+    if baslangic_idx == -1:
+        return ""
+
+    icerik_baslangic = baslangic_idx + len(etiket)
+    bitis_idx = len(metin)
+
+    for sonraki in sonraki_etiketler:
+        idx = metin.find(sonraki, icerik_baslangic)
+        if idx != -1 and idx < bitis_idx:
+            bitis_idx = idx
+
+    return markdown_temizle(metin[icerik_baslangic:bitis_idx])
+
+
+def main():
+    print("Web sitesi tasarım talebini girin (Boş bırakırsanız varsayılan talep kullanılır):")
+    tasarim_talebi = input("> ").strip()
+    if not tasarim_talebi:
+        tasarim_talebi = varsayilan_talep
+
+    istek_metni = f"{sistem_mesaji}\n\nKullanıcı talebi:\n{tasarim_talebi}"
+
+    response = model.generate_content(
+        istek_metni,
+        generation_config={
+            "temperature": 0.5,
+            "max_output_tokens": 16000,
+        },
+    )
+
+    sonuc = response.text or ""
+    etiket_listesi = list(dosyalar.values())
+
+    for dosya_adi, etiket in dosyalar.items():
+        diger_etiketler = [e for e in etiket_listesi if e != etiket]
+        html_kodu = bolum_ayikla(sonuc, etiket, diger_etiketler)
+
+        with open(dosya_adi, "w", encoding="utf-8") as dosya:
+            dosya.write(html_kodu)
+
+        print(f"[OK] {dosya_adi} oluşturuldu ({len(html_kodu)} karakter).")
+
+
+if __name__ == "__main__":
+    main()
